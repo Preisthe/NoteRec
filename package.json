@@ -1,0 +1,22 @@
+{
+  "name": "noterec",
+  "version": "1.0.0",
+  "description": "相对音感训练工具",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "music",
+    "ear-training",
+    "relative-pitch",
+    "web-app"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

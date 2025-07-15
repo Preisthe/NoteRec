@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteRec - 相对音感训练</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NoteRec</h1>
+            <p>相对音感训练工具</p>
+        </header>
+
+        <main>
+            <div class="control-panel">
+                <div class="settings">
+                    <h2>设置</h2>
+                    <div class="setting-item">
+                        <label for="reference-type">提示音类型：</label>
+                        <select id="reference-type">
+                            <option value="scale">完整音阶</option>
+                            <option value="chord">主和弦</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="show-answer">直接显示答案：</label>
+                        <input type="checkbox" id="show-answer">
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="play-reference" class="btn primary">播放提示音</button>
+                    <button id="play-note" class="btn primary">播放随机音符</button>
+                </div>
+            </div>
+
+            <div class="answer-panel">
+                <div class="note-buttons">
+                    <div class="diatonic-notes">
+                        <button class="note-btn" data-note="1">1</button>
+                        <button class="note-btn" data-note="2">2</button>
+                        <button class="note-btn" data-note="3">3</button>
+                        <button class="note-btn" data-note="4">4</button>
+                        <button class="note-btn" data-note="5">5</button>
+                        <button class="note-btn" data-note="6">6</button>
+                        <button class="note-btn" data-note="7">7</button>
+                    </div>
+                    <div class="chromatic-notes">
+                        <button class="note-btn" data-note="b2">♭2</button>
+                        <button class="note-btn" data-note="#2">♯2</button>
+                        <button class="note-btn" data-note="b3">♭3</button>
+                        <button class="note-btn" data-note="#4">♯4</button>
+                        <button class="note-btn" data-note="b5">♭5</button>
+                        <button class="note-btn" data-note="#5">♯5</button>
+                        <button class="note-btn" data-note="b6">♭6</button>
+                        <button class="note-btn" data-note="#6">♯6</button>
+                        <button class="note-btn" data-note="b7">♭7</button>
+                    </div>
+                </div>
+
+                <div id="result" class="result hidden">
+                    <p id="result-text"></p>
+                    <p id="correct-answer"></p>
+                </div>
+            </div>
+
+            <div class="stats">
+                <p>正确: <span id="correct-count">0</span></p>
+                <p>错误: <span id="wrong-count">0</span></p>
+                <p>准确率: <span id="accuracy">0%</span></p>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2023 NoteRec - 相对音感训练工具</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
