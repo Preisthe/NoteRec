@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '5': 'G4',  // 属音
         '6': 'A4',  // 下中音
         '7': 'B4',  // 导音
+        '#1': 'C#4', // 升一级
         'b2': 'C#4/Db4', // 降二级（等于升一级）
         '#2': 'D#4/Eb4', // 升二级（等于降三级）
         'b3': 'Eb4',     // 降三级
@@ -75,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '5': 'G4',
         '6': 'A4',
         '7': 'B4',
+        '#1': 'C#4',
         'b2': 'Db4',
         '#2': 'Eb4',
         'b3': 'Eb4',
@@ -88,11 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 等音关系映射
     const enharmonicEquivalents = {
+        '#1': 'b2',
         'b2': '#1',
         '#2': 'b3',
+        'b3': '#2',
         '#4': 'b5',
+        'b5': '#4',
         '#5': 'b6',
+        'b6': '#5',
         '#6': 'b7',
+        'b7': '#6',
     };
 
     // 获取DOM元素
@@ -113,6 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let correctCount = 0;
     let wrongCount = 0;
     let isPlaying = false;
+    let diatonicCount = 0;
+    let isChecking = true;
 
     // 禁用按钮直到音源加载完成
     playReferenceBtn.disabled = true;
@@ -134,6 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 播放随机音符
     playNoteBtn.addEventListener('click', () => {
         if (isPlaying) return;
+        if (showAnswerCheckbox.checked) {
+            isChecking = false;
+        } else {
+            isChecking = true;
+        }
         
         // 重置按钮状态
         resetNoteButtons();
@@ -141,9 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // 隐藏结果
         resultDiv.classList.add('hidden');
         
-        // 生成随机音符
+        // 设置每6个调内音后出现1个调外音的模式
         const notes = Object.keys(playableNotes);
-        currentNote = notes[Math.floor(Math.random() * notes.length)];
+        const diatonicNotes = notes.slice(0, 7); // 前7个是调内音
+        const chromaticNotes = notes.slice(7);   // 其余是调外音
+        
+        // 使用静态计数器记录调内音的次数，每6次调内音后选择1次调外音
+        if (diatonicCount >= 6) {
+            currentNote = chromaticNotes[Math.floor(Math.random() * chromaticNotes.length)];
+            diatonicCount = 0;
+        } else {
+            currentNote = diatonicNotes[Math.floor(Math.random() * diatonicNotes.length)];
+            diatonicCount++;
+        }
         
         // 播放音符
         playNote(playableNotes[currentNote]);
@@ -160,7 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!currentNote || isPlaying) return;
             
             const selectedNote = button.getAttribute('data-note');
-            checkAnswer(selectedNote);
+            if (isChecking) {
+                checkAnswer(selectedNote);
+                isChecking = false;
+            } else {
+                playNote(playableNotes[selectedNote]);
+            }
         });
     });
 
@@ -168,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function playScale() {
         isPlaying = true;
         const now = Tone.now();
-        const duration = 0.5;
+        const duration = 0.3;
         
         // 播放C大调音阶
         synth.triggerAttackRelease('C4', duration, now);
@@ -196,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 和弦播放完成后重置状态
         setTimeout(() => {
             isPlaying = false;
-        }, 2000);
+        }, 500);
     }
 
     // 播放单个音符
@@ -211,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedButton.classList.add('selected');
         
         // 判断答案是否正确
-        const isCorrect = selectedNote === currentNote;
+        const isCorrect = selectedNote === currentNote || enharmonicEquivalents[selectedNote] === currentNote;
         
         // 更新统计信息
         if (isCorrect) {
@@ -237,11 +266,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 显示正确答案
     function showAnswer() {
-        // 找到正确答案的按钮并标记
+        // 找到正确答案的按钮并标记和播放
         const correctButton = document.querySelector(`.note-btn[data-note="${currentNote}"]`);
         if (correctButton && !correctButton.classList.contains('correct')) {
             correctButton.classList.add('correct');
         }
+        playNote(playableNotes[currentNote]);
         
         // 显示正确答案文本
         let answerText = `正确答案: ${currentNote}`;
