@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading-indicator');
     loadingIndicator.classList.remove('hidden');
     
+    // 添加淡入动画效果
+    document.querySelectorAll('.animate-fade-in').forEach(element => {
+        element.style.opacity = '0';
+        setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transition = 'opacity 0.5s ease-in-out';
+        }, 100);
+    });
+    
     // 初始化Tone.js
     const synth = new Tone.Sampler({
         urls: {
@@ -19,10 +28,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // 等待采样器加载完成
     Tone.loaded().then(() => {
         console.log('音源加载完成');
-        // 隐藏加载提示
+        // 隐藏加载提示，显示淡入效果
         loadingIndicator.classList.add('hidden');
-        document.getElementById('play-reference').disabled = false;
-        document.getElementById('play-note').disabled = false;
+        
+        // 启用按钮
+        const playReferenceBtn = document.getElementById('play-reference');
+        const playNoteBtn = document.getElementById('play-note');
+        
+        playReferenceBtn.disabled = false;
+        playNoteBtn.disabled = false;
+        
+        // 添加按钮悬停效果
+        const addButtonHoverEffect = (button) => {
+            button.addEventListener('mouseenter', () => {
+                button.classList.add('scale-105');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-105');
+            });
+        };
+        
+        // 为所有按钮添加悬停效果
+        document.querySelectorAll('.btn, .note-btn').forEach(addButtonHoverEffect);
     });
 
     // 音符的实际播放音高（简化为C大调）
@@ -195,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkAnswer(selectedNote) {
         // 标记选中的按钮
         const selectedButton = document.querySelector(`.note-btn[data-note="${selectedNote}"]`);
-        selectedButton.classList.add('selected');
+        selectedButton.classList.add('note-btn-selected');
         
         // 判断答案是否正确
         const isCorrect = selectedNote === currentNote || enharmonicEquivalents[selectedNote] === currentNote;
@@ -203,13 +230,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // 更新统计信息
         if (isCorrect) {
             correctCount++;
-            selectedButton.classList.add('correct');
-            resultText.textContent = '正确！';
+            selectedButton.classList.add('note-btn-correct');
+            resultText.textContent = '✓ 正确！';
+            resultText.className = 'text-xl font-bold text-green-600 dark:text-green-400';
         } else {
             wrongCount++;
-            selectedButton.classList.add('wrong');
-            resultText.textContent = '错误！';
+            selectedButton.classList.add('note-btn-wrong');
+            resultText.textContent = '✗ 错误！';
+            resultText.className = 'text-xl font-bold text-red-600 dark:text-red-400';
         }
+        
+        // 添加结果动画效果
+        resultText.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            resultText.style.transform = 'scale(1)';
+            resultText.style.transition = 'transform 0.3s ease-out';
+        }, 100);
         
         // 更新统计显示
         correctCountSpan.textContent = correctCount;
@@ -226,8 +262,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function showAnswer() {
         // 找到正确答案的按钮并标记和播放
         const correctButton = document.querySelector(`.note-btn[data-note="${currentNote}"]`);
-        if (correctButton && !correctButton.classList.contains('correct')) {
-            correctButton.classList.add('correct');
+        if (correctButton && !correctButton.classList.contains('note-btn-correct')) {
+            correctButton.classList.add('note-btn-correct');
+            
+            // 添加按钮动画效果
+            correctButton.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                correctButton.style.transform = 'scale(1)';
+                correctButton.style.transition = 'transform 0.3s ease-out';
+            }, 100);
         }
         playNote(playableNotes[currentNote]);
         
@@ -246,12 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         correctAnswerText.textContent = answerText;
+        correctAnswerText.className = 'mt-2 text-gray-600 dark:text-gray-400';
     }
 
     // 重置音符按钮状态
     function resetNoteButtons() {
         noteButtons.forEach(button => {
-            button.classList.remove('selected', 'correct', 'wrong');
+            button.classList.remove('note-btn-selected', 'note-btn-correct', 'note-btn-wrong');
         });
     }
 });
