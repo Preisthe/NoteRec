@@ -52,45 +52,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.btn, .note-btn').forEach(addButtonHoverEffect);
     });
 
-    // 音符的实际播放音高（简化为C大调）
-    const playableNotes = {
-        '1': 'C4',
-        '2': 'D4',
-        '3': 'E4',
-        '4': 'F4',
-        '5': 'G4',
-        '6': 'A4',
-        '7': 'B4',
-        '#1': 'C#4',
-        'b2': 'Db4',
-        '#2': 'Eb4',
-        'b3': 'Eb4',
-        '#4': 'F#4',
-        'b5': 'Gb4',
-        '#5': 'Ab4',
-        'b6': 'Ab4',
-        '#6': 'Bb4',
-        'b7': 'Bb4',
-    };
-
     // 等音关系映射
     const enharmonicEquivalents = {
         '#1': 'b2',
-        'b2': '#1',
         '#2': 'b3',
-        'b3': '#2',
         '#4': 'b5',
-        'b5': '#4',
         '#5': 'b6',
-        'b6': '#5',
         '#6': 'b7',
-        'b7': '#6',
     };
 
     // 获取DOM元素
     const playReferenceBtn = document.getElementById('play-reference');
     const playNoteBtn = document.getElementById('play-note');
     const referenceTypeSelect = document.getElementById('reference-type');
+    const keyTypeSelect = document.getElementById('key-type');
     const showAnswerCheckbox = document.getElementById('show-answer');
     const noteButtons = document.querySelectorAll('.note-btn');
     const resultText = document.getElementById('result-text');
@@ -110,6 +85,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // 禁用按钮直到音源加载完成
     playReferenceBtn.disabled = true;
     playNoteBtn.disabled = true;
+
+    // 各调式音高映射
+    const keyToNotes = {
+        'C': { '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4', '#1': 'C#4', '#2': 'D#4', '#4': 'F#4', '#5': 'G#4', '#6': 'A#4' },
+        'G': { '1': 'G4', '2': 'A4', '3': 'B4', '4': 'C5', '5': 'D5', '6': 'E5', '7': 'F#5', '#1': 'G#4', '#2': 'A#4', '#4': 'C#5', '#5': 'D#5', '#6': 'E#5' },
+        'D': { '1': 'D4', '2': 'E4', '3': 'F#4', '4': 'G4', '5': 'A4', '6': 'B4', '7': 'C#5', '#1': 'D#4', '#2': 'E#4', '#4': 'G#4', '#5': 'A#4', '#6': 'B#4' },
+        'A': { '1': 'A4', '2': 'B4', '3': 'C#5', '4': 'D5', '5': 'E5', '6': 'F#5', '7': 'G#5', '#1': 'A#4', '#2': 'B#4', '#4': 'D#5', '#5': 'E#5', '#6': 'F##5' },
+        'E': { '1': 'E4', '2': 'F#4', '3': 'G#4', '4': 'A4', '5': 'B4', '6': 'C#5', '7': 'D#5', '#1': 'E#4', '#2': 'F##4', '#4': 'A#4', '#5': 'B#4', '#6': 'C##5' },
+        'B': { '1': 'B4', '2': 'C#5', '3': 'D#5', '4': 'E5', '5': 'F#5', '6': 'G#5', '7': 'A#5', '#1': 'B#4', '#2': 'C##5', '#4': 'E#5', '#5': 'F##5', '#6': 'G##5' },
+        'F#': { '1': 'F#4', '2': 'G#4', '3': 'A#4', '4': 'B4', '5': 'C#5', '6': 'D#5', '7': 'E#5', '#1': 'F##4', '#2': 'G##4', '#4': 'B#4', '#5': 'C##5', '#6': 'D##5' },
+        'Db': { '1': 'Db4', '2': 'Eb4', '3': 'F4', '4': 'Gb4', '5': 'Ab4', '6': 'Bb4', '7': 'C5', '#1': 'D4', '#2': 'E4', '#4': 'G4', '#5': 'A4', '#6': 'B4' },
+        'Ab': { '1': 'Ab4', '2': 'Bb4', '3': 'C5', '4': 'Db5', '5': 'Eb5', '6': 'F5', '7': 'G5', '#1': 'A4', '#2': 'B4', '#4': 'D5', '#5': 'E5', '#6': 'F#5' },
+        'Eb': { '1': 'Eb4', '2': 'F4', '3': 'G4', '4': 'Ab4', '5': 'Bb4', '6': 'C5', '7': 'D5', '#1': 'E4', '#2': 'F#4', '#4': 'A4', '#5': 'B4', '#6': 'C#5' },
+        'Bb': { '1': 'Bb4', '2': 'C5', '3': 'D5', '4': 'Eb5', '5': 'F5', '6': 'G5', '7': 'A5', '#1': 'B4', '#2': 'C#5', '#4': 'E5', '#5': 'F#5', '#6': 'G#5' },
+        'F': { '1': 'F4', '2': 'G4', '3': 'A4', '4': 'Bb4', '5': 'C5', '6': 'D5', '7': 'E5', '#1': 'F#4', '#2': 'G#4', '#4': 'B4', '#5': 'C#5', '#6': 'D#5' }
+    };
+
+    // 当前选中调式
+    let currentKey = keyTypeSelect.value;
+    let playableNotes = keyToNotes[currentKey];
+
+    // 调式切换事件
+    keyTypeSelect.addEventListener('change', () => {
+        currentKey = keyTypeSelect.value;
+        playableNotes = keyToNotes[currentKey];
+    });
 
     // 播放提示音（音阶或和弦）
     playReferenceBtn.addEventListener('click', () => {
@@ -157,10 +158,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // 播放音符
         playNote(playableNotes[currentNote]);
         
+        // 启用再听一遍按钮
+        document.getElementById('replay-note').disabled = false;
+        
         // 如果设置为直接显示答案
         if (showAnswerCheckbox.checked) {
             showAnswer();
         }
+    });
+    
+    // 再听一遍按钮功能
+    document.getElementById('replay-note').addEventListener('click', () => {
+        if (!currentNote || isPlaying) return;
+        playNote(playableNotes[currentNote]);
     });
 
     // 为每个音符按钮添加点击事件
@@ -169,11 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!currentNote || isPlaying) return;
             
             const selectedNote = button.getAttribute('data-note');
-            if (isChecking) {
-                checkAnswer(selectedNote);
-                isChecking = false;
-            } else {
-                playNote(playableNotes[selectedNote]);
+            if (selectedNote != '#3') {
+                if (isChecking) {
+                    checkAnswer(selectedNote);
+                    isChecking = false;
+                } else {
+                    playNote(playableNotes[selectedNote]);
+                }
             }
         });
     });
@@ -183,17 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
         isPlaying = true;
         const now = Tone.now();
         const duration = 0.3;
-        
-        // 播放C大调音阶
-        synth.triggerAttackRelease('C4', duration, now);
-        synth.triggerAttackRelease('D4', duration, now + duration);
-        synth.triggerAttackRelease('E4', duration, now + duration * 2);
-        synth.triggerAttackRelease('F4', duration, now + duration * 3);
-        synth.triggerAttackRelease('G4', duration, now + duration * 4);
-        synth.triggerAttackRelease('A4', duration, now + duration * 5);
-        synth.triggerAttackRelease('B4', duration, now + duration * 6);
-        synth.triggerAttackRelease('C5', duration, now + duration * 7);
-        
+        // 获取当前调式的音阶音符
+        const scaleNotes = [
+            playableNotes['1'], playableNotes['2'], playableNotes['3'],
+            playableNotes['4'], playableNotes['5'], playableNotes['6'], playableNotes['7']
+        ];
+
+        // 播放当前调式音阶
+        scaleNotes.forEach((note, index) => {
+            synth.triggerAttackRelease(note, duration, now + duration * index);
+        });
+        // 播放高八度主音
+        const octave5Note = scaleNotes[0].replace(/4/, '5');
+        synth.triggerAttackRelease(octave5Note, duration, now + duration * 7);
+
         // 音阶播放完成后重置状态
         setTimeout(() => {
             isPlaying = false;
@@ -204,8 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function playChord() {
         isPlaying = true;
         
-        // 播放C大调主和弦（C-E-G）
-        synth.triggerAttackRelease(['C4', 'E4', 'G4'], '1n');
+        // 播放当前调式的主和弦（1-3-5级）
+        const chordNotes = [
+            playableNotes['1'],  // 主音
+            playableNotes['3'],  // 三音
+            playableNotes['5']   // 五音
+        ];
+        synth.triggerAttackRelease(chordNotes, '1n');
         
         // 和弦播放完成后重置状态
         setTimeout(() => {
@@ -272,7 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 correctButton.style.transition = 'transform 0.3s ease-out';
             }, 100);
         }
-        playNote(playableNotes[currentNote]);
+        if (!showAnswerCheckbox.checked) {
+            playNote(playableNotes[currentNote]);
+        }
         
         // 显示正确答案文本
         let answerText = `正确答案: ${currentNote}`;

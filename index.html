@@ -105,6 +105,23 @@
                                 <option value="chord">主和弦</option>
                             </select>
                         </div>
+                        <div class="space-y-2">
+                            <label for="key-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">调式选择</label>
+                            <select id="key-type" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:text-gray-200">
+                                <option value="C">C大调</option>
+                                <option value="G">G大调</option>
+                                <option value="D">D大调</option>
+                                <option value="A">A大调</option>
+                                <option value="E">E大调</option>
+                                <option value="B">B大调</option>
+                                <option value="F#">F#大调</option>
+                                <option value="Db">Db大调</option>
+                                <option value="Ab">Ab大调</option>
+                                <option value="Eb">Eb大调</option>
+                                <option value="Bb">Bb大调</option>
+                                <option value="F">F大调</option>
+                            </select>
+                        </div>
                         <div class="flex items-center">
                             <input type="checkbox" id="show-answer" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
                             <label for="show-answer" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">直接显示答案</label>
@@ -118,6 +135,9 @@
                     </button>
                     <button id="play-note" disabled class="btn btn-primary flex items-center justify-center">
                         <i class="fas fa-play mr-2"></i> 播放随机音符
+                    </button>
+                    <button id="replay-note" disabled class="btn btn-secondary flex items-center justify-center">
+                        <i class="fas fa-redo mr-2"></i> 再听一遍
                     </button>
                 </div>
             </div>
@@ -139,15 +159,11 @@
                     </div>
                     <div class="flex flex-wrap justify-center gap-2 sm:gap-3">
                         <button class="note-btn note-btn-chromatic" data-note="#1">♯1</button>
-                        <button class="note-btn note-btn-chromatic" data-note="b2">♭2</button>
                         <button class="note-btn note-btn-chromatic" data-note="#2">♯2</button>
-                        <button class="note-btn note-btn-chromatic" data-note="b3">♭3</button>
+                        <button class="note-btn note-btn-chromatic" data-note="#3"></button>
                         <button class="note-btn note-btn-chromatic" data-note="#4">♯4</button>
-                        <button class="note-btn note-btn-chromatic" data-note="b5">♭5</button>
                         <button class="note-btn note-btn-chromatic" data-note="#5">♯5</button>
-                        <button class="note-btn note-btn-chromatic" data-note="b6">♭6</button>
                         <button class="note-btn note-btn-chromatic" data-note="#6">♯6</button>
-                        <button class="note-btn note-btn-chromatic" data-note="b7">♭7</button>
                     </div>
                 </div>
 
