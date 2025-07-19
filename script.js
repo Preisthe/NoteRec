@@ -44,29 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('play-note').disabled = false;
     });
 
-    // 定义音符映射
-    const noteMapping = {
-        // 大调音阶的音符级数与实际音高的映射
-        // 以C大调为例
-        '1': 'C4',  // 主音
-        '2': 'D4',  // 上主音
-        '3': 'E4',  // 中音
-        '4': 'F4',  // 下属音
-        '5': 'G4',  // 属音
-        '6': 'A4',  // 下中音
-        '7': 'B4',  // 导音
-        '#1': 'C#4', // 升一级
-        'b2': 'C#4/Db4', // 降二级（等于升一级）
-        '#2': 'D#4/Eb4', // 升二级（等于降三级）
-        'b3': 'Eb4',     // 降三级
-        '#4': 'F#4/Gb4', // 升四级（等于降五级）
-        'b5': 'Gb4',     // 降五级
-        '#5': 'G#4/Ab4', // 升五级（等于降六级）
-        'b6': 'Ab4',     // 降六级
-        '#6': 'A#4/Bb4', // 升六级（等于降七级）
-        'b7': 'Bb4',     // 降七级
-    };
-
     // 音符的实际播放音高（简化为C大调）
     const playableNotes = {
         '1': 'C4',
@@ -108,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const referenceTypeSelect = document.getElementById('reference-type');
     const showAnswerCheckbox = document.getElementById('show-answer');
     const noteButtons = document.querySelectorAll('.note-btn');
-    const resultDiv = document.getElementById('result');
     const resultText = document.getElementById('result-text');
     const correctAnswerText = document.getElementById('correct-answer');
     const correctCountSpan = document.getElementById('correct-count');
@@ -153,7 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
         resetNoteButtons();
         
         // 隐藏结果
-        resultDiv.classList.add('hidden');
+        resultText.textContent = '请听题';
+        correctAnswerText.textContent = '...';
         
         // 设置每6个调内音后出现1个调外音的模式
         const notes = Object.keys(playableNotes);
@@ -288,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         correctAnswerText.textContent = answerText;
-        resultDiv.classList.remove('hidden');
     }
 
     // 重置音符按钮状态
