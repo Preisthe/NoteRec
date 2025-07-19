@@ -16,10 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化Tone.js
     const synth = new Tone.Sampler({
         urls: {
+            // "C2": "C2.mp3",
+            // "D#2": "Ds2.mp3",
+            // "F#2": "Fs2.mp3",
+            // "A2": "A2.mp3",
+            "C3": "C3.mp3",
+            "D#3": "Ds3.mp3",
+            "F#3": "Fs3.mp3",
+            "A3": "A3.mp3",
             "C4": "C4.mp3",
             "D#4": "Ds4.mp3",
             "F#4": "Fs4.mp3",
             "A4": "A4.mp3",
+            "C5": "C5.mp3",
+            "D#5": "Ds5.mp3",
+            "F#5": "Fs5.mp3",
+            "A5": "A5.mp3",
+            // "C6": "C6.mp3",
+            // "D#6": "Ds6.mp3",
+            // "F#6": "Fs6.mp3",
+            // "A6": "A6.mp3",
         },
         release: 0.8,
         baseUrl: "https://tonejs.github.io/audio/salamander/",
@@ -67,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const referenceTypeSelect = document.getElementById('reference-type');
     const keyTypeSelect = document.getElementById('key-type');
     const showAnswerCheckbox = document.getElementById('show-answer');
+    const octaveRangeCheckbox = document.getElementById('octave-range');
     const noteButtons = document.querySelectorAll('.note-btn');
     const resultText = document.getElementById('result-text');
     const correctAnswerText = document.getElementById('correct-answer');
@@ -105,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 当前选中调式
     let currentKey = keyTypeSelect.value;
     let playableNotes = keyToNotes[currentKey];
+    let octaveFlip = false;
 
     // 调式切换事件
     keyTypeSelect.addEventListener('change', () => {
@@ -153,6 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentNote = diatonicNotes[Math.floor(Math.random() * diatonicNotes.length)];
             diatonicCount++;
+        }
+        // 如果扩展八度范围
+        if (octaveRangeCheckbox.checked) {
+            // 随机选择是否切换八度
+            octaveFlip = Math.random() < 0.5;
         }
         
         // 播放音符
@@ -235,6 +258,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 播放单个音符
     function playNote(note) {
+        // 如果扩展八度范围
+        if (octaveRangeCheckbox.checked && octaveFlip) {
+            if (note.includes('4')) {
+                note = note.replace('4', '5');
+            } else {
+                note = note.replace('5', '4');
+            }
+        }
+
         synth.triggerAttackRelease(note, '1n');
     }
 
