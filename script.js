@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
         
     // 播放提示音（音阶或和弦）
-    playReferenceBtn.addEventListener('click', () => {
+    function playReference() {
         const referenceType = referenceTypeSelect.value;
         
         isPlaying = true;
@@ -113,10 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 isPlaying = false;
             }, 500);
         }
-    });
+    }
+    playReferenceBtn.addEventListener('click', playReference);
 
     // 播放随机音符
-    playNoteBtn.addEventListener('click', () => {
+    function playRandomNote() {
         if (isPlaying) return;
         if (showAnswerCheckbox.checked) {
             isChecking = false;
@@ -177,10 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('replay-note').disabled = false;
         
         // 如果设置为直接显示答案
-        if (showAnswerCheckbox.checked) {
+        if (showAnswerCheckbox.checked && !isAutoMode) {
             showAnswer();
         }
-    });
+    }
+    playNoteBtn.addEventListener('click', playRandomNote);
     
     // 再听一遍按钮功能
     document.getElementById('replay-note').addEventListener('click', () => {
@@ -258,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 correctButton.style.transition = 'transform 0.3s ease-out';
             }, 100);
         }
-        if (!showAnswerCheckbox.checked) {
+        if (!showAnswerCheckbox.checked || isAutoMode) {
             playNote(playableNotes[currentNote], octaveFlip);
         }
         
@@ -286,4 +288,58 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.remove('note-btn-correct', 'note-btn-wrong');
         });
     }
+
+    // 自动模式按钮功能
+    let isAutoMode = false;
+    let autoSequenceTimeout = null;
+    let checkReferenceEnd = null;
+
+    document.getElementById('auto-mode-btn').addEventListener('click', () => {
+        isAutoMode = !isAutoMode;
+        const autoBtn = document.getElementById('auto-mode-btn');
+
+        if (isAutoMode) {
+            // 启动自动模式
+            autoBtn.innerHTML = '<i class="fas fa-stop mr-2"></i> 停止自动';
+            autoBtn.classList.remove('btn-secondary');
+            autoBtn.classList.add('bg-red-300', 'hover:bg-red-300');
+            playReferenceBtn.disabled = true;
+            playNoteBtn.disabled = true;
+
+            function startAutoSequence() {
+                if (!isAutoMode) return;
+                
+                // 播放参考音
+                playReference();
+                
+                // 等待参考音播放完成
+                checkReferenceEnd = setInterval(() => {
+                    if (!isPlaying) {
+                        clearInterval(checkReferenceEnd);
+                        if (autoSequenceTimeout) clearTimeout(autoSequenceTimeout);
+                        
+                        setTimeout(() => {
+                            console.log(isPlaying);
+                            playRandomNote();
+                            if (showAnswerCheckbox.checked) {
+                                setTimeout(showAnswer, 1000);
+                            }
+                            // 等待2秒后再次开始循环
+                            autoSequenceTimeout = setTimeout(startAutoSequence, 2000);
+                        }, 1000);
+                    }
+                }, 100);
+            }
+            startAutoSequence();
+        } else {
+            // 停止自动模式
+            autoBtn.innerHTML = '<i class="fas fa-cog mr-2"></i> 自动模式';
+            autoBtn.classList.remove('bg-red-300', 'hover:bg-red-300');
+            autoBtn.classList.add('btn-secondary');
+            playNoteBtn.disabled = false;
+            playReferenceBtn.disabled = false;
+            clearTimeout(autoSequenceTimeout);
+            clearInterval(checkReferenceEnd);
+        }
+    });
 });
