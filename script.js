@@ -1,3 +1,5 @@
+import { enharmonicEquivalents, keyToNotes } from './const.js';
+import { playNote, playScale, playChord } from './utils.js';
 // 等待DOM加载完成
 document.addEventListener('DOMContentLoaded', () => {
     // 显示加载提示
@@ -13,34 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
     
-    // 初始化Tone.js
-    const synth = new Tone.Sampler({
-        urls: {
-            // "C2": "C2.mp3",
-            // "D#2": "Ds2.mp3",
-            // "F#2": "Fs2.mp3",
-            // "A2": "A2.mp3",
-            // "C3": "C3.mp3",
-            // "D#3": "Ds3.mp3",
-            // "F#3": "Fs3.mp3",
-            // "A3": "A3.mp3",
-            "C4": "C4.mp3",
-            "D#4": "Ds4.mp3",
-            "F#4": "Fs4.mp3",
-            "A4": "A4.mp3",
-            "C5": "C5.mp3",
-            "D#5": "Ds5.mp3",
-            "F#5": "Fs5.mp3",
-            "A5": "A5.mp3",
-            // "C6": "C6.mp3",
-            // "D#6": "Ds6.mp3",
-            // "F#6": "Fs6.mp3",
-            // "A6": "A6.mp3",
-        },
-        release: 0.8,
-        baseUrl: "https://tonejs.github.io/audio/salamander/",
-    }).toDestination();
-
     // 等待采样器加载完成
     Tone.loaded().then(() => {
         console.log('音源加载完成');
@@ -54,15 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playReferenceBtn.disabled = false;
         playNoteBtn.disabled = false;
     });
-
-    // 等音关系映射
-    const enharmonicEquivalents = {
-        '#1': 'b2',
-        '#2': 'b3',
-        '#4': 'b5',
-        '#5': 'b6',
-        '#6': 'b7',
-    };
 
     // 获取DOM元素
     const playReferenceBtn = document.getElementById('play-reference');
@@ -93,26 +58,16 @@ document.addEventListener('DOMContentLoaded', () => {
     playReferenceBtn.disabled = true;
     playNoteBtn.disabled = true;
 
-    // 各调式音高映射
-    const keyToNotes = {
-        'C': { '1': 'C4', '2': 'D4', '3': 'E4', '4': 'F4', '5': 'G4', '6': 'A4', '7': 'B4', '#1': 'C#4', '#2': 'D#4', '#4': 'F#4', '#5': 'G#4', '#6': 'A#4' },
-        'G': { '1': 'G4', '2': 'A4', '3': 'B4', '4': 'C5', '5': 'D5', '6': 'E5', '7': 'F#5', '#1': 'G#4', '#2': 'A#4', '#4': 'C#5', '#5': 'D#5', '#6': 'E#5' },
-        'D': { '1': 'D4', '2': 'E4', '3': 'F#4', '4': 'G4', '5': 'A4', '6': 'B4', '7': 'C#5', '#1': 'D#4', '#2': 'E#4', '#4': 'G#4', '#5': 'A#4', '#6': 'B#4' },
-        'A': { '1': 'A4', '2': 'B4', '3': 'C#5', '4': 'D5', '5': 'E5', '6': 'F#5', '7': 'G#5', '#1': 'A#4', '#2': 'B#4', '#4': 'D#5', '#5': 'E#5', '#6': 'F##5' },
-        'E': { '1': 'E4', '2': 'F#4', '3': 'G#4', '4': 'A4', '5': 'B4', '6': 'C#5', '7': 'D#5', '#1': 'E#4', '#2': 'F##4', '#4': 'A#4', '#5': 'B#4', '#6': 'C##5' },
-        'B': { '1': 'B4', '2': 'C#5', '3': 'D#5', '4': 'E5', '5': 'F#5', '6': 'G#5', '7': 'A#5', '#1': 'B#4', '#2': 'C##5', '#4': 'E#5', '#5': 'F##5', '#6': 'G##5' },
-        'F#': { '1': 'F#4', '2': 'G#4', '3': 'A#4', '4': 'B4', '5': 'C#5', '6': 'D#5', '7': 'E#5', '#1': 'F##4', '#2': 'G##4', '#4': 'B#4', '#5': 'C##5', '#6': 'D##5' },
-        'Db': { '1': 'Db4', '2': 'Eb4', '3': 'F4', '4': 'Gb4', '5': 'Ab4', '6': 'Bb4', '7': 'C5', '#1': 'D4', '#2': 'E4', '#4': 'G4', '#5': 'A4', '#6': 'B4' },
-        'Ab': { '1': 'Ab4', '2': 'Bb4', '3': 'C5', '4': 'Db5', '5': 'Eb5', '6': 'F5', '7': 'G5', '#1': 'A4', '#2': 'B4', '#4': 'D5', '#5': 'E5', '#6': 'F#5' },
-        'Eb': { '1': 'Eb4', '2': 'F4', '3': 'G4', '4': 'Ab4', '5': 'Bb4', '6': 'C5', '7': 'D5', '#1': 'E4', '#2': 'F#4', '#4': 'A4', '#5': 'B4', '#6': 'C#5' },
-        'Bb': { '1': 'Bb4', '2': 'C5', '3': 'D5', '4': 'Eb5', '5': 'F5', '6': 'G5', '7': 'A5', '#1': 'B4', '#2': 'C#5', '#4': 'E5', '#5': 'F#5', '#6': 'G#5' },
-        'F': { '1': 'F4', '2': 'G4', '3': 'A4', '4': 'Bb4', '5': 'C5', '6': 'D5', '7': 'E5', '#1': 'F#4', '#2': 'G#4', '#4': 'B4', '#5': 'C#5', '#6': 'D#5' }
-    };
-
     // 当前选中调式
     let currentKey = keyTypeSelect.value;
     let playableNotes = keyToNotes[currentKey];
     let octaveFlip = false;
+
+    // 调式切换事件
+    keyTypeSelect.addEventListener('change', () => {
+        currentKey = keyTypeSelect.value;
+        playableNotes = keyToNotes[currentKey];
+    });
 
     // 初始化音符启用状态
     const enabledNotes = {};
@@ -128,12 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
         
-    // 调式切换事件
-    keyTypeSelect.addEventListener('change', () => {
-        currentKey = keyTypeSelect.value;
-        playableNotes = keyToNotes[currentKey];
-    });
-
     // 初始化难度控制
     let difficulty = localStorage.getItem('noteRecDifficulty') || 2;
     difficultySlider.value = difficulty;
@@ -149,12 +98,20 @@ document.addEventListener('DOMContentLoaded', () => {
     playReferenceBtn.addEventListener('click', () => {
         const referenceType = referenceTypeSelect.value;
         
+        isPlaying = true;
         if (referenceType === 'scale') {
-            // 播放完整音阶
-            playScale();
+            const duration = 0.3;
+            playScale(playableNotes, duration);
+            // 音阶播放完成后重置状态
+            setTimeout(() => {
+                isPlaying = false;
+            }, duration * 8 * 1000);
         } else {
-            // 播放主和弦
-            playChord();
+            playChord(playableNotes);
+            // 和弦播放完成后重置状态
+            setTimeout(() => {
+                isPlaying = false;
+            }, 500);
         }
     });
 
@@ -186,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 动态概率 = 基础概率 + 连续调内音加成 (最高100%)
             const dynamicProbability = Math.min(
-                2 * baseProbability * Math.pow((diatonicCount / maxConsecutiveDiatonic), 2),
+                2.5 * baseProbability * Math.pow((diatonicCount / maxConsecutiveDiatonic), 2),
                 1
             );
             // console.log(dynamicProbability);
@@ -209,10 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (octaveRangeCheckbox.checked) {
             // 随机选择是否切换八度
             octaveFlip = Math.random() < 0.5;
+        } else {
+            octaveFlip = false;
         }
         
         // 播放音符
-        playNote(playableNotes[currentNote]);
+        playNote(playableNotes[currentNote], octaveFlip);
         
         // 启用再听一遍按钮
         document.getElementById('replay-note').disabled = false;
@@ -226,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 再听一遍按钮功能
     document.getElementById('replay-note').addEventListener('click', () => {
         if (!currentNote || isPlaying) return;
-        playNote(playableNotes[currentNote]);
+        playNote(playableNotes[currentNote], octaveFlip);
     });
 
     // 为每个音符按钮添加点击事件
@@ -240,68 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     checkAnswer(selectedNote);
                     isChecking = false;
                 } else {
-                    playNote(playableNotes[selectedNote]);
+                    playNote(playableNotes[selectedNote], octaveFlip);
                 }
             }
         });
     });
-
-    // 播放完整音阶
-    function playScale() {
-        isPlaying = true;
-        const now = Tone.now();
-        const duration = 0.3;
-        // 获取当前调式的音阶音符
-        const scaleNotes = [
-            playableNotes['1'], playableNotes['2'], playableNotes['3'],
-            playableNotes['4'], playableNotes['5'], playableNotes['6'], playableNotes['7']
-        ];
-
-        // 播放当前调式音阶
-        scaleNotes.forEach((note, index) => {
-            synth.triggerAttackRelease(note, duration, now + duration * index);
-        });
-        // 播放高八度主音
-        const octave5Note = scaleNotes[0].replace(/4/, '5');
-        synth.triggerAttackRelease(octave5Note, duration, now + duration * 7);
-
-        // 音阶播放完成后重置状态
-        setTimeout(() => {
-            isPlaying = false;
-        }, duration * 8 * 1000);
-    }
-
-    // 播放主和弦
-    function playChord() {
-        isPlaying = true;
-        
-        // 播放当前调式的主和弦（1-3-5级）
-        const chordNotes = [
-            playableNotes['1'],  // 主音
-            playableNotes['3'],  // 三音
-            playableNotes['5']   // 五音
-        ];
-        synth.triggerAttackRelease(chordNotes, '1n');
-        
-        // 和弦播放完成后重置状态
-        setTimeout(() => {
-            isPlaying = false;
-        }, 500);
-    }
-
-    // 播放单个音符
-    function playNote(note) {
-        // 如果扩展八度范围
-        if (octaveRangeCheckbox.checked && octaveFlip) {
-            if (note.includes('4')) {
-                note = note.replace('4', '5');
-            } else {
-                note = note.replace('5', '4');
-            }
-        }
-
-        synth.triggerAttackRelease(note, '1n');
-    }
 
     // 检查答案
     function checkAnswer(selectedNote) {
@@ -357,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 100);
         }
         if (!showAnswerCheckbox.checked) {
-            playNote(playableNotes[currentNote]);
+            playNote(playableNotes[currentNote], octaveFlip);
         }
         
         // 显示正确答案文本
