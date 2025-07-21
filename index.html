@@ -45,7 +45,7 @@
     <style type="text/tailwindcss">
         @layer components {
             .btn {
-                @apply px-4 py-2 rounded-md transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2;
+                @apply px-4 py-2 rounded-md transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-105;
             }
             .btn-primary {
                 @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-700 dark:hover:bg-primary-600;
@@ -62,14 +62,17 @@
             .note-btn-chromatic {
                 @apply border-2 border-gray-400 text-gray-600 hover:bg-gray-400 hover:text-white dark:border-gray-500 dark:text-gray-400 dark:hover:bg-gray-600;
             }
-            .note-btn-selected {
-                @apply bg-primary-500 text-white dark:bg-primary-600;
-            }
             .note-btn-correct {
                 @apply bg-green-500 border-green-500 text-white dark:bg-green-600 dark:border-green-600;
             }
             .note-btn-wrong {
                 @apply bg-red-500 border-red-500 text-white dark:bg-red-600 dark:border-red-600;
+            }
+            .note-toggle-btn {
+                @apply w-16 h-6 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:scale-105 transition-all duration-200 font-semibold text-sm text-gray-700 dark:text-gray-300;
+            }
+            .note-toggle-btn-selected {
+                @apply bg-primary-100 dark:bg-primary-900 border-primary-500 dark:border-primary-400;
             }
         }
     </style>
@@ -93,6 +96,30 @@
             </div>
             
             <div class="grid md:grid-cols-2 gap-6 border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+                <!-- 音符选择开关 -->
+                <div class="mt-8 md:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border border-gray-100 dark:border-gray-700" id="note-toggle-container">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-5 flex items-center">
+                        <i class="fas fa-music-alt mr-2 text-primary-500"></i> 训练音符范围
+                    </h3>
+                    <div class="flex flex-wrap justify-center gap-3 mb-4" id="diatonic-notes-toggle">
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="1">1</button>
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="2">2</button>
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="3">3</button>
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="4">4</button>
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="5">5</button>
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="6">6</button>
+                        <button class="note-toggle-btn note-toggle-btn-selected" data-note="7">7</button>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-3" id="chromatic-notes-toggle">
+                        <button class="note-toggle-btn" data-note="#1">♯1</button>
+                        <button class="note-toggle-btn" data-note="#2">♯2</button>
+                        <button class="note-toggle-btn" data-note="#3"></button>
+                        <button class="note-toggle-btn" data-note="#4">♯4</button>
+                        <button class="note-toggle-btn" data-note="#5">♯5</button>
+                        <button class="note-toggle-btn" data-note="#6">♯6</button>
+                    </div>
+                </div>
+
                 <div class="space-y-4">
                     <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center">
                         <i class="fas fa-sliders-h mr-2 text-primary-500"></i> 设置

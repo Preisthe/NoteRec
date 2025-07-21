@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // "D#2": "Ds2.mp3",
             // "F#2": "Fs2.mp3",
             // "A2": "A2.mp3",
-            "C3": "C3.mp3",
-            "D#3": "Ds3.mp3",
-            "F#3": "Fs3.mp3",
-            "A3": "A3.mp3",
+            // "C3": "C3.mp3",
+            // "D#3": "Ds3.mp3",
+            // "F#3": "Fs3.mp3",
+            // "A3": "A3.mp3",
             "C4": "C4.mp3",
             "D#4": "Ds4.mp3",
             "F#4": "Fs4.mp3",
@@ -53,19 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         playReferenceBtn.disabled = false;
         playNoteBtn.disabled = false;
-        
-        // 添加按钮悬停效果
-        const addButtonHoverEffect = (button) => {
-            button.addEventListener('mouseenter', () => {
-                button.classList.add('scale-105');
-            });
-            button.addEventListener('mouseleave', () => {
-                button.classList.remove('scale-105');
-            });
-        };
-        
-        // 为所有按钮添加悬停效果
-        document.querySelectorAll('.btn, .note-btn').forEach(addButtonHoverEffect);
     });
 
     // 等音关系映射
@@ -90,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const correctCountSpan = document.getElementById('correct-count');
     const wrongCountSpan = document.getElementById('wrong-count');
     const accuracySpan = document.getElementById('accuracy');
+    const toggleButtons = document.querySelectorAll('.note-toggle-btn');
 
     // 游戏状态
     let currentNote = null;
@@ -124,6 +112,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let playableNotes = keyToNotes[currentKey];
     let octaveFlip = false;
 
+    // 初始化音符启用状态
+    const enabledNotes = {};
+    toggleButtons.forEach(button => {
+        const note = button.getAttribute('data-note');
+        enabledNotes[note] = button.classList.contains('note-toggle-btn-selected');
+        
+        // 为每个按钮添加点击事件监听器
+        button.addEventListener('click', () => {
+            enabledNotes[note] = !enabledNotes[note];
+            button.classList.toggle('note-toggle-btn-selected', enabledNotes[note]);
+            console.log(`音符 ${note} 已${enabledNotes[note] ? '启用' : '禁用'}`);
+        });
+    });
+        
     // 调式切换事件
     keyTypeSelect.addEventListener('change', () => {
         currentKey = keyTypeSelect.value;
@@ -159,19 +161,24 @@ document.addEventListener('DOMContentLoaded', () => {
         resultText.textContent = '请听题';
         correctAnswerText.textContent = '...';
         
-        // 设置每6个调内音后出现1个调外音的模式
+        // 根据启用状态过滤音符
         const notes = Object.keys(playableNotes);
-        const diatonicNotes = notes.slice(0, 7); // 前7个是调内音
-        const chromaticNotes = notes.slice(7);   // 其余是调外音
+        const diatonicNotes = notes.slice(0, 7).filter(note => enabledNotes[note]);
+        const chromaticNotes = notes.slice(7).filter(note => enabledNotes[note]);
         
-        // 使用静态计数器记录调内音的次数，每6次调内音后选择1次调外音
-        if (diatonicCount >= 6) {
-            currentNote = chromaticNotes[Math.floor(Math.random() * chromaticNotes.length)];
-            diatonicCount = 0;
+        if (chromaticNotes.length > 0) {
+            // 使用静态计数器记录调内音的次数，每6次调内音后选择1次调外音
+            if (diatonicCount >= 6) {
+                currentNote = chromaticNotes[Math.floor(Math.random() * chromaticNotes.length)];
+                diatonicCount = 0;
+            } else {
+                currentNote = diatonicNotes[Math.floor(Math.random() * diatonicNotes.length)];
+                diatonicCount++;
+            }
         } else {
             currentNote = diatonicNotes[Math.floor(Math.random() * diatonicNotes.length)];
-            diatonicCount++;
         }
+
         // 如果扩展八度范围
         if (octaveRangeCheckbox.checked) {
             // 随机选择是否切换八度
@@ -274,10 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkAnswer(selectedNote) {
         // 标记选中的按钮
         const selectedButton = document.querySelector(`.note-btn[data-note="${selectedNote}"]`);
-        selectedButton.classList.add('note-btn-selected');
         
         // 判断答案是否正确
-        const isCorrect = selectedNote === currentNote || enharmonicEquivalents[selectedNote] === currentNote;
+        const isCorrect = selectedNote === currentNote;
         
         // 更新统计信息
         if (isCorrect) {
@@ -349,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 重置音符按钮状态
     function resetNoteButtons() {
         noteButtons.forEach(button => {
-            button.classList.remove('note-btn-selected', 'note-btn-correct', 'note-btn-wrong');
+            button.classList.remove('note-btn-correct', 'note-btn-wrong');
         });
     }
 });
