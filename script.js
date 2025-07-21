@@ -78,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const wrongCountSpan = document.getElementById('wrong-count');
     const accuracySpan = document.getElementById('accuracy');
     const toggleButtons = document.querySelectorAll('.note-toggle-btn');
+    const difficultySlider = document.getElementById('difficulty-slider');
+    const difficultyValue = document.getElementById('difficulty-value');
 
     // 游戏状态
     let currentNote = null;
@@ -132,6 +134,17 @@ document.addEventListener('DOMContentLoaded', () => {
         playableNotes = keyToNotes[currentKey];
     });
 
+    // 初始化难度控制
+    let difficulty = localStorage.getItem('noteRecDifficulty') || 2;
+    difficultySlider.value = difficulty;
+    difficultyValue.textContent = `离调概率: ${difficulty}`;
+    // 监听滑块变化
+    difficultySlider.addEventListener('input', (e) => {
+        difficulty = parseInt(e.target.value);
+        difficultyValue.textContent = `离调概率: ${difficulty}`;
+        localStorage.setItem('noteRecDifficulty', difficulty); // 保存到本地存储
+    });
+        
     // 播放提示音（音阶或和弦）
     playReferenceBtn.addEventListener('click', () => {
         const referenceType = referenceTypeSelect.value;
@@ -166,17 +179,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const diatonicNotes = notes.slice(0, 7).filter(note => enabledNotes[note]);
         const chromaticNotes = notes.slice(7).filter(note => enabledNotes[note]);
         
-        if (chromaticNotes.length > 0) {
-            // 使用静态计数器记录调内音的次数，每6次调内音后选择1次调外音
-            if (diatonicCount >= 6) {
+        if (chromaticNotes.length > 0 && diatonicNotes.length > 0) {
+            // 难度参数控制 (可外部调整 1-5，数值越大难度越高)
+            const baseProbability = 0.05 * difficulty; // 基础概率: 难度1=5%, 难度5=25%
+            const maxConsecutiveDiatonic = 15 - (difficulty * 2); // 最大连续调内音: 难度1=13次, 难度5=5次
+
+            // 动态概率 = 基础概率 + 连续调内音加成 (最高100%)
+            const dynamicProbability = Math.min(
+                2 * baseProbability * Math.pow((diatonicCount / maxConsecutiveDiatonic), 2),
+                1
+            );
+            // console.log(dynamicProbability);
+
+            // 随机触发或达到最大连续次数时使用离调音
+            if (Math.random() < dynamicProbability || diatonicCount >= maxConsecutiveDiatonic) {
                 currentNote = chromaticNotes[Math.floor(Math.random() * chromaticNotes.length)];
                 diatonicCount = 0;
             } else {
                 currentNote = diatonicNotes[Math.floor(Math.random() * diatonicNotes.length)];
                 diatonicCount++;
             }
-        } else {
+        } else if (diatonicNotes.length > 0) {
             currentNote = diatonicNotes[Math.floor(Math.random() * diatonicNotes.length)];
+        } else {
+            return;
         }
 
         // 如果扩展八度范围
